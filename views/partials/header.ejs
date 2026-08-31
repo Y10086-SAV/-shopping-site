@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> · 优选商城</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container navbar-inner">
+      <a href="/" class="logo">优选商城</a>
+      <div class="nav-links">
+        <a href="/" class="<%= title === '首页' ? 'active' : '' %>">首页</a>
+        <a href="/products" class="<%= title === '全部商品' ? 'active' : '' %>">全部商品</a>
+        <% if (user && user.role === 'admin') { %>
+          <a href="/admin" class="<%= title === '后台管理' ? 'active' : '' %>">后台管理</a>
+        <% } %>
+      </div>
+      <div class="nav-actions">
+        <a href="/cart" class="cart-link" title="购物车">🛒<span class="cart-badge"><%= cartCount %></span></a>
+        <% if (user) { %>
+          <span class="nav-user">你好，<%= user.username %></span>
+          <% if (user.role !== 'admin') { %>
+            <a href="/orders" class="btn btn-outline btn-sm">我的订单</a>
+          <% } %>
+          <form action="/logout" method="POST" style="display:inline">
+            <button class="btn btn-outline btn-sm" type="submit">退出</button>
+          </form>
+        <% } else { %>
+          <a href="/login" class="btn btn-outline btn-sm">登录</a>
+          <a href="/register" class="btn btn-primary btn-sm">注册</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <% if (flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+    <% } %>

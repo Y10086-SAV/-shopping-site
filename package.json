@@ -1,0 +1,29 @@
+{
+  "name": "shopping-site",
+  "version": "1.0.0",
+  "description": "基于 Node.js + Express + EJS 的购物网站（JSON 文件存储，开箱即用）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "reset": "node scripts/reset.js"
+  },
+  "keywords": [
+    "express",
+    "ejs",
+    "ecommerce",
+    "shopping",
+    "nodejs"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "method-override": "^3.0.0"
+  }
+}

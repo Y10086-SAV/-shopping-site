@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title">购物车</h1>
+
+<% if (cart.length === 0) { %>
+  <div class="empty">
+    <div class="icon">🛒</div>
+    <p>购物车还是空的</p>
+    <a href="/products" class="btn btn-primary" style="margin-top:16px;">去逛逛</a>
+  </div>
+<% } else { %>
+<div class="cart-layout">
+  <div class="table-wrap">
+    <% cart.forEach(function(item){ %>
+      <div class="cart-item">
+        <img class="thumb-sm" src="<%= item.image %>" alt="<%= item.name %>" />
+        <div style="flex:1;">
+          <a href="/products/<%= item.id %>" style="font-weight:600;"><%= item.name %></a>
+          <div class="price" style="font-size:16px;"><%= fmt(item.price) %></div>
+        </div>
+        <form class="qty-form" action="/cart/<%= item.id %>/update" method="POST">
+          <input type="number" name="quantity" value="<%= item.quantity %>" min="1" />
+          <button class="btn btn-outline btn-sm" type="submit">更新</button>
+        </form>
+        <div style="min-width:90px;text-align:right;font-weight:700;">¥<%= fmt(item.price * item.quantity) %></div>
+        <form action="/cart/<%= item.id %>/remove" method="POST">
+          <button class="btn btn-danger btn-sm" type="submit">删除</button>
+        </form>
+      </div>
+    <% }) %>
+    <div style="padding:16px;text-align:right;">
+      <form action="/cart/clear" method="POST" style="display:inline;">
+        <button class="btn btn-outline btn-sm" type="submit">清空购物车</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <h3 style="margin-bottom:8px;">订单摘要</h3>
+    <div class="summary-row"><span>商品件数</span><span><%= cartCount %> 件</span></div>
+    <div class="summary-total"><span>合计</span><span class="price"><%= fmt(cartTotal(cart)) %></span></div>
+    <a href="/checkout" class="btn btn-primary" style="width:100%;">去结算</a>
+  </div>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

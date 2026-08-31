@@ -1,0 +1,39 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title">商品管理</h1>
+
+<div class="admin-nav">
+  <a href="/admin">仪表盘</a>
+  <a href="/admin/products" class="active">商品管理</a>
+  <a href="/admin/orders">订单管理</a>
+  <a href="/admin/users">用户管理</a>
+</div>
+
+<a href="/admin/products/new" class="btn btn-primary" style="margin-bottom:20px;">＋ 新增商品</a>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>图片</th><th>名称</th><th>分类</th><th>价格</th><th>库存</th><th>操作</th></tr>
+    </thead>
+    <tbody>
+      <% products.forEach(function(p){ %>
+        <tr>
+          <td><img class="thumb-sm" src="<%= p.image %>" alt="<%= p.name %>" /></td>
+          <td><%= p.name %></td>
+          <td><%= p.category %></td>
+          <td><span class="price"><%= fmt(p.price) %></span></td>
+          <td><%= p.stock %></td>
+          <td style="white-space:nowrap;">
+            <a href="/admin/products/<%= p.id %>/edit" class="btn btn-outline btn-sm">编辑</a>
+            <form action="/admin/products/<%= p.id %>?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('确定删除该商品？');">
+              <button class="btn btn-danger btn-sm" type="submit">删除</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>

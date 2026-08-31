@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title"><%= product ? '编辑商品' : '新增商品' %></h1>
+
+<div class="form-card" style="max-width:560px;margin:0;">
+  <form action="<%= product ? '/admin/products/' + product.id + '?_method=PUT' : '/admin/products' %>" method="POST">
+    <div class="form-group">
+      <label>商品名称</label>
+      <input type="text" name="name" value="<%= product ? product.name : '' %>" required />
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <select name="category" required>
+        <% categories.forEach(function(c){ %>
+          <option value="<%= c %>" <%= product && product.category === c ? 'selected' : '' %>><%= c %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>价格（元）</label>
+      <input type="number" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required />
+    </div>
+    <div class="form-group">
+      <label>库存</label>
+      <input type="number" name="stock" min="0" value="<%= product ? product.stock : 100 %>" required />
+    </div>
+    <div class="form-group">
+      <label>图片 URL</label>
+      <input type="text" name="image" value="<%= product ? product.image : '' %>" placeholder="https://…" />
+    </div>
+    <div class="form-group">
+      <label>商品描述</label>
+      <textarea name="description" rows="4"><%= product ? product.description : '' %></textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">保存</button>
+    <a href="/admin/products" class="btn btn-outline">取消</a>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

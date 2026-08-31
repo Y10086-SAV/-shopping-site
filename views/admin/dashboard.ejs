@@ -1,0 +1,19 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title">后台管理</h1>
+
+<div class="admin-nav">
+  <a href="/admin" class="active">仪表盘</a>
+  <a href="/admin/products">商品管理</a>
+  <a href="/admin/orders">订单管理</a>
+  <a href="/admin/users">用户管理</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="label">商品总数</div><div class="value"><%= stats.products %></div></div>
+  <div class="stat-card"><div class="label">订单总数</div><div class="value"><%= stats.orders %></div></div>
+  <div class="stat-card"><div class="label">注册用户</div><div class="value"><%= stats.users %></div></div>
+  <div class="stat-card"><div class="label">总营收</div><div class="value price"><%= fmt(stats.revenue) %></div></div>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title">全部商品</h1>
+
+<div class="category-tabs">
+  <a href="/products" class="category-tab <%= currentCategory === '全部' ? 'active' : '' %>">全部</a>
+  <% categories.forEach(function(c){ %>
+    <a href="/products?category=<%= encodeURIComponent(c) %>" class="category-tab <%= currentCategory === c ? 'active' : '' %>"><%= c %></a>
+  <% }) %>
+</div>
+
+<div class="filter-bar">
+  <form action="/products" method="GET">
+    <% if (currentCategory !== '全部') { %>
+      <input type="hidden" name="category" value="<%= currentCategory %>" />
+    <% } %>
+    <input type="text" name="q" class="search-input" placeholder="搜索商品名称或描述…" value="<%= q %>" />
+    <select name="sort" class="select">
+      <option value="" <%= !sort ? 'selected' : '' %>>默认排序</option>
+      <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>价格从低到高</option>
+      <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>价格从高到低</option>
+      <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>最新上架</option>
+    </select>
+    <button class="btn btn-primary" type="submit">搜索</button>
+  </form>
+</div>
+
+<% if (products.length === 0) { %>
+  <div class="empty"><div class="icon">🔍</div>没有找到匹配的商品</div>
+<% } else { %>
+<div class="product-grid">
+  <% products.forEach(function(p){ %>
+    <a class="product-card" href="/products/<%= p.id %>">
+      <div class="thumb"><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" /></div>
+      <div class="info">
+        <div class="name"><%= p.name %></div>
+        <div class="meta"><%= p.category %></div>
+        <div class="bottom">
+          <span class="price"><%= fmt(p.price) %></span>
+          <span class="meta">库存 <%= p.stock %></span>
+        </div>
+      </div>
+    </a>
+  <% }) %>
+</div>
+<% } %>
+
+<%- include('../partials/footer') %>

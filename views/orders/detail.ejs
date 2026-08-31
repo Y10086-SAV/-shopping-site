@@ -1,0 +1,36 @@
+<%- include('../partials/header') %>
+
+<h1 class="page-title">订单详情</h1>
+
+<div class="table-wrap" style="margin-bottom:24px;">
+  <div style="padding:24px;">
+    <p><strong>订单号：</strong><code><%= order.id %></code></p>
+    <p><strong>下单时间：</strong><%= new Date(order.createdAt).toLocaleString('zh-CN') %></p>
+    <p><strong>收货信息：</strong><%= order.receiver %> · <%= order.phone %> · <%= order.address %></p>
+    <p><strong>状态：</strong>
+      <span class="badge <%= order.status === '待发货' ? 'badge-pending' : order.status === '已发货' ? 'badge-shipped' : 'badge-done' %>"><%= order.status %></span>
+    </p>
+  </div>
+  <table>
+    <thead>
+      <tr><th>商品</th><th>单价</th><th>数量</th><th>小计</th></tr>
+    </thead>
+    <tbody>
+      <% order.items.forEach(function(it){ %>
+        <tr>
+          <td><%= it.name %></td>
+          <td>¥<%= fmt(it.price) %></td>
+          <td>× <%= it.quantity %></td>
+          <td>¥<%= fmt(it.price * it.quantity) %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <div style="padding:20px;text-align:right;font-size:18px;font-weight:700;">
+    合计：<span class="price"><%= fmt(order.total) %></span>
+  </div>
+</div>
+
+<a href="/orders" class="btn btn-outline">返回订单列表</a>
+
+<%- include('../partials/footer') %>

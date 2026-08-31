@@ -1,0 +1,32 @@
+<%- include('partials/header') %>
+
+<!-- 顶部横幅 -->
+<section style="background:linear-gradient(120deg,#ff4d2e,#ff8a3d);color:#fff;border-radius:var(--radius);padding:48px 32px;margin:24px 0;">
+  <h1 style="font-size:34px;font-weight:800;">优选好物，一站购齐</h1>
+  <p style="margin-top:8px;opacity:.9;">精选数码、家电、服饰、美妆，正品保障，极速发货。</p>
+  <a href="/products" class="btn btn-outline" style="margin-top:20px;color:#fff;border-color:#fff;">立即选购 →</a>
+</section>
+
+<h2 class="page-title" style="margin-top:8px;">最新上架</h2>
+
+<% if (products.length === 0) { %>
+  <div class="empty"><div class="icon">📦</div>暂无商品</div>
+<% } else { %>
+<div class="product-grid">
+  <% products.forEach(function(p){ %>
+    <a class="product-card" href="/products/<%= p.id %>">
+      <div class="thumb"><img src="<%= p.image %>" alt="<%= p.name %>" loading="lazy" /></div>
+      <div class="info">
+        <div class="name"><%= p.name %></div>
+        <div class="meta"><%= p.category %></div>
+        <div class="bottom">
+          <span class="price"><%= fmt(p.price) %></span>
+          <span class="meta">库存 <%= p.stock %></span>
+        </div>
+      </div>
+    </a>
+  <% }) %>
+</div>
+<% } %>
+
+<%- include('partials/footer') %>
