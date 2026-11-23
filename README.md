@@ -1,11 +1,18 @@
 # 优选商城 · Shopping Site
 
-一个开箱即用的购物网站：**前台为 Vue 3 + Vue Router 单页应用（SPA）**，**后台管理沿用 EJS 服务端渲染**，服务端基于 **Node.js + Express** 提供 JSON 接口，使用 **JSON 文件**存储数据，零数据库依赖，克隆即跑。
+一个包含两套可独立运行实现的购物网站：
+
+- **Node.js 版**：前台 Vue 3 + Vue Router 单页应用（SPA），后台 EJS 服务端渲染，Express 提供 JSON 接口，使用 JSON 文件存储，零数据库依赖，克隆即跑。
+- **PHP 版**：位于 `php/` 目录，PHP 8 + PDO + MySQL 服务端渲染，包含用户系统、验证码、Cookie/Session、图片上传、搜索分页、购物车下单与后台管理。
+
+两套实现页面风格一致，可分别启动、互不影响。
 
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![Vue](https://img.shields.io/badge/Vue-3.x-42B883?logo=vue.js&logoColor=white)](https://vuejs.org)
 [![Vue Router](https://img.shields.io/badge/Vue%20Router-4.x-35495E?logo=vue.js&logoColor=white)](https://router.vuejs.org)
 [![Express](https://img.shields.io/badge/Express-4.x-000000?logo=express&logoColor=white)](https://expressjs.com)
+[![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)](https://www.php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > 学习与演示项目，适合作为前端框架 / 全栈入门练手，或应届生简历中的实战作品。
@@ -18,15 +25,30 @@
 - 📦 **下单结账**：收货信息表单校验、提交订单、自动扣减库存、订单列表与详情
 - 🧑‍💼 **后台管理**：仪表盘统计（商品/订单/用户/营收）、商品增删改、订单状态流转、用户列表
 - 🎬 **交互体验**：页面切换过渡、列表增删动画、骨架屏、全局提示、响应式适配
+- 🔐 **PHP 版安全能力**：GD 图形验证码、`password_hash()` 密码加密、CSRF Token、PDO 预处理防 SQL 注入、上传文件类型校验
+- 🗄️ **MySQL 数据层**：5 张表（用户、分类、商品、订单、订单明细），外键与 CHECK 约束，事务下单与库存扣减
+- 📤 **图片上传**：后台上传商品图片，限制 JPG / PNG / GIF / WEBP 且不超过 2MB
+- 📄 **搜索与分页**：关键词搜索、分类筛选、价格排序，前台 6 条/页、后台 10 条/页
 
 ## 🧱 技术架构
+
+本项目包含两套实现：
+
+### Node.js + Express 版
 
 - **前台**：Vue 3（组合式 API）+ Vue Router 4，单页应用，10 个路由视图（含 404）
 - **后台**：EJS 服务端渲染，通过 `/admin` 访问，`requireAdmin` 中间件鉴权
 - **服务端**：Express 提供 `/api` 下的 JSON 接口，`express-session` 维护登录态与购物车
 - **数据层**：JSON 文件（`data/products.json`、`users.json`、`orders.json`）
 
-> 改造原则：保留原有全部业务功能与后台实现，仅将面向用户的前台重构为 SPA；原有服务端表单路由继续保留以兼容旧链接。
+### PHP + MySQL 版
+
+- **前台 / 后台**：PHP 8 服务端渲染，原生 HTML/CSS（复用同一套页面样式）
+- **数据层**：MySQL 8 + PDO 预处理，`php/database/schema.sql` 创建 5 张表及主键、外键、CHECK 约束
+- **安全**：Session 登录态、Cookie 记住用户名、CSRF Token、图形验证码、`password_hash()`、上传白名单
+- **购物车与订单**：购物车存于 Session；下单使用数据库事务并 `SELECT ... FOR UPDATE` 锁定库存
+
+> 改造原则：保留原有全部业务功能与后台实现，仅将面向用户的前台重构为 SPA；原有服务端表单路由继续保留以兼容旧链接。PHP 版为独立实现，不影响 Node.js 版运行。
 
 ## 📸 界面预览
 
@@ -48,6 +70,8 @@
 
 ## 🚀 快速开始
 
+### 方式一：Node.js + JSON 版
+
 环境要求：**Node.js ≥ 18**
 
 ```bash
@@ -62,7 +86,41 @@ npm start
 
 首次启动会自动生成 `data/` 目录、12 件种子商品和默认管理员账号。
 
+### 方式二：PHP + MySQL 版
+
+环境要求：**PHP ≥ 8.0**（启用 `pdo_mysql`、`gd` 扩展）、**MySQL 8.0**
+
+1. 新建本机配置 `php/config.local.php`（该文件已加入 `.gitignore`）：
+
+```php
+<?php
+return [
+    'host' => '127.0.0.1',
+    'port' => 3306,
+    'name' => 'shopping_php',
+    'user' => 'root',
+    'pass' => '你的数据库密码',
+];
+```
+
+也可以用环境变量 `SHOP_DB_HOST`、`SHOP_DB_PORT`、`SHOP_DB_NAME`、`SHOP_DB_USER`、`SHOP_DB_PASS` 覆盖。
+
+2. 初始化数据库（二选一）：
+
+- 浏览器访问 <http://127.0.0.1:8080/install.php>，点击“开始安装”
+- 或命令行执行 `php php/install.php`
+
+3. 启动 PHP 内置服务器：
+
+```bash
+php -S 127.0.0.1:8080 -t php
+```
+
+打开浏览器访问 <http://127.0.0.1:8080>。也可以项目根目录为站点根目录启动，再访问 `/php/`。
+
 ## 🔑 默认账号
+
+两套实现使用相同的默认管理员账号：
 
 | 角色   | 用户名 | 密码     |
 | ------ | ------ | -------- |
@@ -74,39 +132,38 @@ npm start
 
 ```
 shopping-site/
-├── server.js                 # 服务端入口
+├── server.js                 # Node.js 服务端入口
 ├── package.json
-├── src/
-│   ├── store.js              # 数据层（JSON 读写 + 增删改查）
-│   ├── middleware.js         # 全局中间件与鉴权
+├── src/                      # Node.js 数据层与路由
+│   ├── store.js
+│   ├── middleware.js
 │   └── routes/
-│       ├── api.js            # 前台 SPA 的 JSON 接口
-│       ├── index.js          # 首页（返回 SPA 外壳）
-│       ├── products.js       # 商品列表 / 详情（返回 SPA 外壳）
-│       ├── cart.js           # 购物车
-│       ├── auth.js           # 注册 / 登录 / 退出
-│       ├── orders.js         # 结算 / 订单
-│       └── admin.js          # 后台管理（EJS）
-├── views/
-│   ├── app.ejs               # SPA 外壳（前台唯一模板）
-│   ├── admin/                # 后台 EJS 页面
-│   └── partials/             # 后台公共头部 / 尾部
-├── public/
-│   ├── css/style.css         # 全局样式（含动画与响应式）
-│   ├── js/
-│   │   ├── api.js            # 接口封装
-│   │   ├── validators.js     # 表单正则校验
-│   │   ├── utils.js          # 格式化工具
-│   │   ├── store.js          # 全局响应式状态
-│   │   ├── components.js     # 公共组件（导航 / 卡片 / 步进器等）
-│   │   ├── views.js          # 各页面视图组件
-│   │   └── app.js            # 路由表与应用入口
-│   └── vendor/               # 本地化的 Vue / Vue Router
-├── scripts/reset.js          # 重置数据脚本
-├── docs/
-│   ├── screenshots/          # 页面效果图与功能结构图
-│   └── 优选商城-前端技术课程设计报告.docx / .pdf
-└── data/                     # 运行时自动生成（已 gitignore）
+├── views/                    # Node.js 后台 EJS 模板
+├── public/                   # Vue SPA 前端资源
+├── php/                      # PHP + MySQL 版（可独立部署）
+│   ├── index.php             # 商品列表（搜索 / 分类 / 排序 / 分页）
+│   ├── product.php           # 商品详情
+│   ├── cart.php              # 购物车（Session）
+│   ├── checkout.php          # 结算下单（事务 + 库存扣减）
+│   ├── orders.php            # 我的订单
+│   ├── order.php             # 订单详情
+│   ├── register.php          # 注册
+│   ├── login.php             # 登录
+│   ├── logout.php            # 退出
+│   ├── profile.php           # 资料 / 密码修改
+│   ├── captcha.php           # GD 图形验证码
+│   ├── config.php            # 应用与数据库配置
+│   ├── config.local.php      # 本机私有配置（已 gitignore）
+│   ├── db.php                # PDO 连接
+│   ├── install.php           # 安装 / 初始化脚本
+│   ├── database/schema.sql   # 建库建表、约束与种子数据
+│   ├── includes/             # header / footer / functions / auth
+│   ├── admin/                # 后台仪表盘、商品、订单、用户
+│   ├── assets/               # CSS / JS
+│   └── uploads/products/     # 商品图片上传目录
+├── scripts/reset.js          # 重置 JSON 数据脚本
+├── docs/                     # 设计报告与界面截图
+└── data/                     # Node.js 运行时数据（已 gitignore）
 ```
 
 ## 🛠️ 技术栈
@@ -120,6 +177,9 @@ shopping-site/
 | [express-session](https://github.com/expressjs/session) | 会话管理（登录态 + 购物车） |
 | [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 密码加密 |
 | [method-override](https://github.com/expressjs/method-override) | 表单支持 PUT / DELETE |
+| [PHP 8](https://www.php.net) | PHP 版服务端与页面渲染 |
+| [MySQL 8](https://www.mysql.com) | PHP 版数据库 |
+| [PDO](https://www.php.net/manual/zh/book.pdo.php) | 预处理查询与事务 |
 
 ## 📄 设计报告
 
@@ -132,6 +192,8 @@ shopping-site/
 | `npm start` | 启动服务（常规模式） |
 | `npm run dev` | 启动开发模式（文件变更自动重启） |
 | `npm run reset` | 清空 `data/` 目录，重启后重新生成种子数据 |
+| `php -S 127.0.0.1:8080 -t php` | 启动 PHP 版（内置服务器） |
+| `php php/install.php` | 命令行初始化 MySQL 数据库 |
 
 ## 📝 环境变量
 
@@ -141,6 +203,16 @@ shopping-site/
 | --- | --- | --- |
 | `PORT` | `3000` | 服务端口 |
 | `SESSION_SECRET` | 开发用默认值 | 会话加密密钥，生产环境务必修改 |
+
+PHP 版不使用 `.env`，支持以下环境变量（优先级高于 `php/config.local.php`）：
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `SHOP_DB_HOST` | `127.0.0.1` | 数据库地址 |
+| `SHOP_DB_PORT` | `3306` | 数据库端口 |
+| `SHOP_DB_NAME` | `shopping_php` | 数据库名 |
+| `SHOP_DB_USER` | `root` | 数据库用户 |
+| `SHOP_DB_PASS` | 空 | 数据库密码 |
 
 ## ❓ FAQ
 
@@ -164,6 +236,16 @@ npm start
 **购物车数据会丢吗？**
 
 购物车存于服务端 session，浏览器关闭后按会话 cookie 有效期（默认 1 天）保留；生产部署建议改用持久化存储（如 Redis）。
+
+**PHP 版提示数据库连接失败？**
+
+确认 MySQL 已启动，并在 `php/config.local.php` 中填写正确的账号密码；首次运行请访问 `php/install.php` 初始化数据库。
+
+**PHP 版 8080 端口被占用？**
+
+```bash
+php -S 127.0.0.1:8081 -t php
+```
 
 ## 📄 License
 
