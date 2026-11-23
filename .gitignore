@@ -3,3 +3,8 @@ data/
 npm-debug.log*
 .env
 .DS_Store
+
+# 本机私有配置与上传文件
+php/config.local.php
+php/uploads/products/*
+!php/uploads/products/.gitkeep

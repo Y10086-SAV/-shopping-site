@@ -1,0 +1,300 @@
+/* ==========================================================
+   PHP 版补充样式：分页、移动端导航、验证码、上传预览等
+   ========================================================== */
+
+/* 商品区锚点留白 */
+#products {
+  scroll-margin-top: 80px;
+}
+
+/* ---------- 分页 ---------- */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 32px 0 8px;
+}
+
+.page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.16s;
+}
+
+.page-link:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.page-link.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.page-link.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.page-ellipsis {
+  color: var(--muted);
+  padding: 0 4px;
+}
+
+/* ---------- 列表工具条 ---------- */
+.list-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.filter-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---------- 移动端导航 ---------- */
+@media (max-width: 768px) {
+  .nav-collapse.open {
+    display: flex;
+  }
+}
+
+/* ---------- 验证码 ---------- */
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.captcha-row input {
+  flex: 1;
+}
+
+.captcha-img {
+  height: 44px;
+  width: 120px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  background: #fff;
+  object-fit: cover;
+}
+
+.captcha-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- 上传 ---------- */
+.upload-preview {
+  margin-top: 10px;
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- 详情 / 购物车补充 ---------- */
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.qty-input {
+  width: 84px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.inline-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.cart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.cart-thumb {
+  width: 76px;
+  height: 76px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f1f1f1;
+}
+
+.cart-info {
+  flex: 1;
+  min-width: 160px;
+}
+
+.cart-price {
+  width: 100px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.cart-subtotal {
+  width: 110px;
+  text-align: right;
+  font-weight: 700;
+}
+
+/* ---------- 订单 ---------- */
+.order-card {
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.order-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+}
+
+.order-card-head .meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.order-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.order-line .name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.order-line .qty {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.order-total-line {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ---------- 后台 ---------- */
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.form-tip {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+tr.low-stock td {
+  background: #fff8f2;
+}
+
+/* ---------- 空状态 / 提示 ---------- */
+.empty-actions {
+  margin-top: 18px;
+}
+
+.notice {
+  background: #fff8e6;
+  border: 1px solid #ffe1a1;
+  color: #8a5a00;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.form-inline-error {
+  margin: -8px 0 14px;
+  color: #d63c3c;
+  font-size: 13px;
+}
+
+/* ---------- 响应式补充 ---------- */
+@media (max-width: 640px) {
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  .cart-price,
+  .cart-subtotal {
+    width: auto;
+  }
+
+  .detail-actions .btn {
+    flex: 1;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
