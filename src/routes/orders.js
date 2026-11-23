@@ -3,14 +3,14 @@ const router = express.Router();
 const store = require('../store');
 const { flash, requireLogin } = require('../middleware');
 
-/** 结算页：展示购物车并填写收货信息 */
+/** 结算页由前端 SPA 渲染，数据通过 /api/cart 获取 */
 router.get('/checkout', requireLogin, (req, res) => {
   const cart = req.session.cart || [];
   if (cart.length === 0) {
     flash(req, 'warning', '购物车是空的');
     return res.redirect('/cart');
   }
-  res.render('orders/checkout', { title: '结算', cart });
+  res.render('app');
 });
 
 /** 提交订单 */
@@ -50,22 +50,14 @@ router.post('/checkout', requireLogin, (req, res) => {
   res.redirect('/orders/' + order.id);
 });
 
-/** 我的订单列表 */
-router.get('/orders', requireLogin, (req, res) => {
-  const orders = store.listOrdersByUser(req.session.user.id);
-  res.render('orders/list', { title: '我的订单', orders });
+/** 我的订单列表由前端 SPA 渲染，数据通过 /api/orders 获取 */
+router.get('/orders', (req, res) => {
+  res.render('app');
 });
 
-/** 订单详情 */
-router.get('/orders/:id', requireLogin, (req, res) => {
-  const orders = store.listAllOrders();
-  const order = orders.find((o) => o.id === req.params.id);
-  if (!order) return res.status(404).render('404', { title: '订单不存在' });
-  // 仅本人或管理员可查看
-  if (order.userId !== req.session.user.id && req.session.user.role !== 'admin') {
-    return res.status(403).render('404', { title: '无权访问' });
-  }
-  res.render('orders/detail', { title: '订单详情', order });
+/** 订单详情由前端 SPA 渲染，权限校验在 /api/orders/:id 中完成 */
+router.get('/orders/:id', (req, res) => {
+  res.render('app');
 });
 
 module.exports = router;

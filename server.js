@@ -11,6 +11,7 @@ const store = require('./src/store');
 const middleware = require('./src/middleware');
 
 // 各功能路由
+const apiRouter = require('./src/routes/api');
 const indexRouter = require('./src/routes/index');
 const productRouter = require('./src/routes/products');
 const cartRouter = require('./src/routes/cart');
@@ -50,6 +51,9 @@ app.use(
 app.use(middleware.globals);
 
 // ---------- 挂载路由 ----------
+// 前端 SPA 的 JSON 接口
+app.use('/api', apiRouter);
+
 app.use('/', indexRouter);
 app.use('/products', productRouter);
 app.use('/cart', cartRouter);

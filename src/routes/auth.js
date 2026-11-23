@@ -4,9 +4,9 @@ const bcrypt = require('bcryptjs');
 const store = require('../store');
 const { flash } = require('../middleware');
 
-/** 注册页 */
+/** 注册页由前端 SPA 渲染，提交走 /api/auth/register */
 router.get('/register', (req, res) => {
-  res.render('auth/register', { title: '注册', form: {}, errors: {} });
+  res.render('app');
 });
 
 /** 处理注册 */
@@ -35,9 +35,9 @@ router.post('/register', (req, res) => {
   res.redirect('/');
 });
 
-/** 登录页 */
+/** 登录页由前端 SPA 渲染，提交走 /api/auth/login */
 router.get('/login', (req, res) => {
-  res.render('auth/login', { title: '登录', form: {}, error: null });
+  res.render('app');
 });
 
 /** 处理登录 */

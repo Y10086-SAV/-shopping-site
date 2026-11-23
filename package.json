@@ -1,7 +1,7 @@
 {
   "name": "shopping-site",
   "version": "1.0.0",
-  "description": "基于 Node.js + Express + EJS 的购物网站（JSON 文件存储，开箱即用）",
+  "description": "基于 Vue 3 + Vue Router + Node.js/Express 的购物网站（前台 SPA，后台 EJS，JSON 文件存储）",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

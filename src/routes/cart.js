@@ -13,10 +13,9 @@ function getCart(req) {
   return req.session.cart;
 }
 
-/** 购物车页 */
+/** 购物车页由前端 SPA 渲染，数据通过 /api/cart 获取 */
 router.get('/', (req, res) => {
-  const cart = getCart(req);
-  res.render('cart/index', { title: '购物车', cart });
+  res.render('app');
 });
 
 /** 加入购物车 */
