@@ -83,6 +83,7 @@ window.ShopComponents = (function () {
     template: `
       <footer class="footer">
         <div class="container">
+          <p class="footer-jp">樱花树下，好好购物。</p>
           <p>优选商城 · Vue 3 + Vue Router + Node.js/Express 课程设计项目</p>
           <p class="footer-sub">本站为教学演示项目，商品与订单数据仅用于功能展示。</p>
         </div>

@@ -66,42 +66,35 @@ if (is_post()) {
                 $serverTotal += (float)$row['price'] * $qty;
             }
 
-            $orderNo = generate_order_no();
-            $insertOrder = $pdo->prepare(
-                'INSERT INTO orders (order_no, user_id, receiver, phone, address, total, status)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+            // 同一用户的旧待支付单作废，避免重复支付
+            $cancelPending = $pdo->prepare(
+                "UPDATE `pending_orders` SET `status` = 'cancelled'
+                 WHERE `user_id` = ? AND `status` = 'pending'"
             );
-            $insertOrder->execute([
+            $cancelPending->execute([(int)$user['id']]);
+
+            $orderNo = generate_order_no();
+            $itemsJson = json_encode($orderItems, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+            $insertPending = $pdo->prepare(
+                'INSERT INTO `pending_orders`
+                   (`order_no`, `user_id`, `receiver`, `phone`, `address`, `total`, `items_json`, `status`)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, \'pending\')'
+            );
+            $insertPending->execute([
                 $orderNo,
                 (int)$user['id'],
                 $form['receiver'],
                 $form['phone'],
                 $form['address'],
                 $serverTotal,
-                '待发货',
+                $itemsJson,
             ]);
-            $orderId = (int)$pdo->lastInsertId();
-
-            $insertItem = $pdo->prepare(
-                'INSERT INTO order_items (order_id, product_id, product_name, price, quantity)
-                 VALUES (?, ?, ?, ?, ?)'
-            );
-            $updateStock = $pdo->prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
-            foreach ($orderItems as $item) {
-                $insertItem->execute([
-                    $orderId,
-                    $item['product_id'],
-                    $item['name'],
-                    $item['price'],
-                    $item['quantity'],
-                ]);
-                $updateStock->execute([$item['quantity'], $item['product_id']]);
-            }
+            $pendingId = (int)$pdo->lastInsertId();
 
             $pdo->commit();
-            unset($_SESSION['cart']);
-            flash('success', '下单成功，订单号：' . $orderNo);
-            redirect('order.php?id=' . $orderId);
+
+            // 不生成正式订单、不扣库存、不清空购物车；支付成功后再生成
+            redirect('pay.php?id=' . $pendingId);
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
@@ -157,7 +150,7 @@ require __DIR__ . '/includes/header.php';
       <span>应付合计</span>
       <span class="price"><?= e(format_price($total)) ?></span>
     </div>
-    <p class="form-tip">提交订单后将自动扣减商品库存。</p>
+    <p class="form-tip">提交订单后进入支付页；支付成功后才生成订单并扣减库存。</p>
   </aside>
 </div>
 

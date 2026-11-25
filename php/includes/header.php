@@ -19,8 +19,21 @@ $flashes = take_flashes();
   <title><?= e($pageTitle) ?> · <?= e(APP_NAME) ?></title>
   <link rel="stylesheet" href="<?= e(asset('css/style.css')) ?>" />
   <link rel="stylesheet" href="<?= e(asset('css/extra.css')) ?>" />
+  <link rel="stylesheet" href="<?= e(asset('css/anime.css')) ?>" />
 </head>
-<body>
+<body<?= isset($bodyClass) && $bodyClass !== '' ? ' class="' . e($bodyClass) . '"' : '' ?>>
+  <div class="anime-sky" aria-hidden="true">
+    <span class="cloud c1"></span>
+    <span class="cloud c2"></span>
+    <span class="cloud c3"></span>
+    <span class="cloud c4"></span>
+    <span class="cloud c5"></span>
+  </div>
+  <div class="sakura-layer" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
   <nav class="navbar">
     <div class="container navbar-inner">
       <a href="<?= e(url('index.php')) ?>" class="logo"><?= e(APP_NAME) ?></a>

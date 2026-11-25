@@ -17,26 +17,23 @@ window.ShopViews = (function () {
       <div>
         <section class="hero">
           <div class="hero-content">
-            <span class="hero-tag">2025 精选好物</span>
-            <h1>优选好物，一站购齐</h1>
-            <p>精选数码、家电、服饰、美妆，正品保障，极速发货。</p>
+            <span class="hero-tag">🌸 春日新品 · 2025 精选好物</span>
+            <p class="hero-jp">今天，也遇见好东西。</p>
+            <h1>优选好物<br><em>一站购齐</em></h1>
+            <p>精选数码、家电、服饰与美妆，把心动好物轻轻带回家。</p>
             <div class="hero-actions">
               <router-link to="/products" class="btn btn-light btn-lg">立即选购 →</router-link>
               <router-link to="/register" class="btn btn-ghost btn-lg">注册会员</router-link>
             </div>
-          </div>
-          <div class="hero-art" aria-hidden="true">
-            <div class="hero-orb orb-1"></div>
-            <div class="hero-orb orb-2"></div>
-            <div class="hero-orb orb-3"></div>
             <div class="hero-float-card">
-              <span class="dot"></span>
+              <span class="hero-avatar"><img src="/img/mascot-clerk.png" alt="" /></span>
               <div>
-                <strong>今日精选</strong>
+                <strong>今日推荐</strong>
                 <small>12 件好物已上架</small>
               </div>
             </div>
           </div>
+          <div class="hero-art" aria-hidden="true"></div>
         </section>
 
         <section class="feature-strip">
@@ -720,8 +717,9 @@ window.ShopViews = (function () {
           <aside class="auth-brand">
             <div class="auth-brand-inner">
               <div class="auth-logo">优选商城</div>
+              <p class="auth-jp">再次见面，真好</p>
               <h2>欢迎回来</h2>
-              <p>登录后即可同步购物车、查看订单，享受更顺畅的购物体验。</p>
+              <p>登录后即可同步购物车、查看订单，把心动好物继续留在清单里。</p>
               <ul class="auth-points">
                 <li><span>✓</span>正品保障，极速发货</li>
                 <li><span>✓</span>购物车与订单实时同步</li>
@@ -830,8 +828,9 @@ window.ShopViews = (function () {
           <aside class="auth-brand">
             <div class="auth-brand-inner">
               <div class="auth-logo">优选商城</div>
+              <p class="auth-jp">初次见面，请多关照</p>
               <h2>加入优选</h2>
-              <p>注册会员，开启你的品质购物之旅。</p>
+              <p>注册会员，开启你的春日好物清单，让每一次逛街都像翻开新的一页。</p>
               <ul class="auth-points">
                 <li><span>✓</span>精选好物，一站购齐</li>
                 <li><span>✓</span>订单状态实时可查</li>

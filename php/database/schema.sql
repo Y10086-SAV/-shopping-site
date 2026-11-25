@@ -68,6 +68,15 @@ CREATE TABLE IF NOT EXISTS `products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品表';
 
 -- -------------------------------------------------------------
+-- 分类承接表（应用自动维护，不在本脚本中固定创建）
+-- 新增分类时，后台会自动创建 products_cat_<分类ID>：
+--   - 字段与 products 对齐，id 对应 products.id，一分类一表；
+--   - 外键指向 products.id，商品删除时级联删除；
+--   - 新增/编辑商品、下单扣库存时同步更新对应承接表；
+--   - 安装脚本会为现有分类统一创建并回填承接表。
+-- -------------------------------------------------------------
+
+-- -------------------------------------------------------------
 -- 4. 订单表
 --    外键：user_id -> users.id（用户注销时级联删除其订单）
 -- -------------------------------------------------------------
@@ -114,6 +123,36 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   CONSTRAINT `chk_items_price` CHECK (`price` >= 0),
   CONSTRAINT `chk_items_qty` CHECK (`quantity` > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单明细表';
+
+-- -------------------------------------------------------------
+-- 6. 待支付订单表
+--    提交结算后先写入本表，支付成功后才生成正式 orders / order_items
+--    外键：user_id -> users.id；order_id -> orders.id（支付后回填）
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pending_orders` (
+  `id`         INT UNSIGNED  NOT NULL AUTO_INCREMENT COMMENT '待支付订单主键',
+  `order_no`   VARCHAR(32)   NOT NULL                COMMENT '订单编号（支付后复用）',
+  `user_id`    INT UNSIGNED  NOT NULL                COMMENT '下单用户',
+  `receiver`   VARCHAR(50)   NOT NULL                COMMENT '收货人',
+  `phone`      VARCHAR(20)   NOT NULL                COMMENT '联系电话',
+  `address`    VARCHAR(255)  NOT NULL                COMMENT '收货地址',
+  `total`      DECIMAL(10,2) NOT NULL DEFAULT 0.00   COMMENT '待支付金额',
+  `items_json` TEXT          NOT NULL                COMMENT '商品快照 JSON',
+  `status`     ENUM('pending','paid','cancelled') NOT NULL DEFAULT 'pending' COMMENT '支付状态',
+  `order_id`   INT UNSIGNED  DEFAULT NULL            COMMENT '支付后生成的正式订单',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `paid_at`    DATETIME DEFAULT NULL                 COMMENT '支付时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_pending_orders_no` (`order_no`),
+  KEY `idx_pending_orders_user_status` (`user_id`, `status`),
+  CONSTRAINT `fk_pending_orders_user`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT `fk_pending_orders_order`
+    FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+  CONSTRAINT `chk_pending_orders_total` CHECK (`total` >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='待支付订单表';
 
 -- -------------------------------------------------------------
 -- 种子数据：分类

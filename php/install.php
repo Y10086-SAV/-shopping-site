@@ -10,6 +10,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/categories.php';
 
 /**
  * 执行安装
@@ -47,6 +48,9 @@ function install_app(): array
         );
         $stmt->execute(['admin', 'admin@example.com', password_hash('admin123', PASSWORD_DEFAULT), 'admin']);
     }
+
+    // 为所有现有分类创建并回填承接表 products_cat_<分类ID>
+    sync_all_category_tables($pdo);
 
     return [
         'version'    => (string)$server->query('SELECT VERSION()')->fetchColumn(),

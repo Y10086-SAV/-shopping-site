@@ -7,6 +7,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/categories.php';
 
 require_admin();
 $pdo = db();
@@ -27,12 +28,13 @@ $categories = $pdo->query('SELECT id, name FROM categories ORDER BY sort_order, 
 $currentImage = $product['image'] ?? '';
 
 $form = [
-    'name'        => $product['name'] ?? '',
-    'category_id' => (int)($product['category_id'] ?? ($categories[0]['id'] ?? 0)),
-    'price'       => $product['price'] ?? '',
-    'stock'       => $product['stock'] ?? 100,
-    'image_url'   => ($currentImage && preg_match('#^https?://#i', $currentImage)) ? $currentImage : '',
-    'description' => $product['description'] ?? '',
+    'name'         => $product['name'] ?? '',
+    'category_id'  => (int)($product['category_id'] ?? ($categories[0]['id'] ?? 0)),
+    'new_category' => '',
+    'price'        => $product['price'] ?? '',
+    'stock'        => $product['stock'] ?? 100,
+    'image_url'    => ($currentImage && preg_match('#^https?://#i', $currentImage)) ? $currentImage : '',
+    'description'  => $product['description'] ?? '',
 ];
 $errors = [];
 $preview = $currentImage;
@@ -41,26 +43,37 @@ if (is_post()) {
     csrf_verify();
 
     $form = [
-        'name'        => post('name'),
-        'category_id' => (int)post('category_id', '0'),
-        'price'       => post('price'),
-        'stock'       => post('stock'),
-        'image_url'   => post('image_url'),
-        'description' => post('description'),
+        'name'         => post('name'),
+        'category_id'  => (int)post('category_id', '0'),
+        'new_category' => post('new_category'),
+        'price'        => post('price'),
+        'stock'        => post('stock'),
+        'image_url'    => post('image_url'),
+        'description'  => post('description'),
     ];
 
     if ($form['name'] === '' || mb_strlen($form['name']) > 120) {
         $errors[] = '商品名称不能为空且不超过 120 个字符';
     }
-    $categoryOk = false;
-    foreach ($categories as $cat) {
-        if ((int)$cat['id'] === $form['category_id']) {
-            $categoryOk = true;
-            break;
+
+    $selectedCategoryName = '';
+    if ($form['new_category'] !== '') {
+        if (mb_strlen($form['new_category']) > 50) {
+            $errors[] = '新分类名称不能超过 50 个字符';
         }
-    }
-    if (!$categoryOk) {
-        $errors[] = '请选择有效的商品分类';
+        if (preg_match('/[\x00-\x1F\x7F]/u', $form['new_category'])) {
+            $errors[] = '新分类名称不能包含控制字符';
+        }
+    } else {
+        foreach ($categories as $cat) {
+            if ((int)$cat['id'] === $form['category_id']) {
+                $selectedCategoryName = (string)$cat['name'];
+                break;
+            }
+        }
+        if ($selectedCategoryName === '') {
+            $errors[] = '请选择已有分类，或填写新分类名称';
+        }
     }
     if (!is_numeric($form['price']) || (float)$form['price'] < 0 || (float)$form['price'] > 99999999.99) {
         $errors[] = '价格必须为 0 - 99999999.99 之间的数字';
@@ -81,6 +94,39 @@ if (is_post()) {
         }
     }
 
+    $categoryInfo = null;
+    if (!$errors) {
+        try {
+            if ($form['new_category'] !== '') {
+                // 新建（或复用同名）分类，并自动创建 products_cat_<ID> 承接表
+                $categoryInfo = create_category($pdo, $form['new_category']);
+                $form['category_id'] = $categoryInfo['id'];
+
+                $existsInList = false;
+                foreach ($categories as $cat) {
+                    if ((int)$cat['id'] === $categoryInfo['id']) {
+                        $existsInList = true;
+                        break;
+                    }
+                }
+                if (!$existsInList) {
+                    $categories[] = ['id' => $categoryInfo['id'], 'name' => $categoryInfo['name']];
+                }
+            } else {
+                // 已有分类：确保承接表存在（首次保存时自动回填该分类商品）
+                $table = ensure_category_table($pdo, $form['category_id'], $selectedCategoryName);
+                $categoryInfo = [
+                    'id'      => $form['category_id'],
+                    'name'    => $selectedCategoryName,
+                    'table'   => $table,
+                    'created' => false,
+                ];
+            }
+        } catch (Throwable $e) {
+            $errors[] = '分类处理失败：' . $e->getMessage();
+        }
+    }
+
     if (!$errors) {
         $image = $uploadedImage;
         if ($image === null && $form['image_url'] !== '') {
@@ -90,40 +136,76 @@ if (is_post()) {
             $image = $currentImage !== '' ? $currentImage : null;
         }
 
-        if ($product) {
-            $stmt = $pdo->prepare(
-                'UPDATE products SET category_id = ?, name = ?, price = ?, stock = ?, image = ?, description = ? WHERE id = ?'
-            );
-            $stmt->execute([
-                $form['category_id'],
-                $form['name'],
-                (float)$form['price'],
-                (int)$stock,
-                $image,
-                $form['description'],
-                $id,
-            ]);
+        $oldCategoryId = (int)($product['category_id'] ?? 0);
+        try {
+            $pdo->beginTransaction();
+
+            if ($product) {
+                $stmt = $pdo->prepare(
+                    'UPDATE products SET category_id = ?, name = ?, price = ?, stock = ?, image = ?, description = ? WHERE id = ?'
+                );
+                $stmt->execute([
+                    $form['category_id'],
+                    $form['name'],
+                    (float)$form['price'],
+                    (int)$stock,
+                    $image,
+                    $form['description'],
+                    $id,
+                ]);
+                if (!sync_category_product($pdo, $form['category_id'], $id)) {
+                    throw new RuntimeException('分类承接表不存在，商品更新已回滚');
+                }
+                if ($oldCategoryId !== $form['category_id']) {
+                    remove_category_product($pdo, $oldCategoryId, $id);
+                }
+            } else {
+                $stmt = $pdo->prepare(
+                    'INSERT INTO products (category_id, name, price, stock, image, description) VALUES (?, ?, ?, ?, ?, ?)'
+                );
+                $stmt->execute([
+                    $form['category_id'],
+                    $form['name'],
+                    (float)$form['price'],
+                    (int)$stock,
+                    $image,
+                    $form['description'],
+                ]);
+                $newProductId = (int)$pdo->lastInsertId();
+                if (!sync_category_product($pdo, $form['category_id'], $newProductId)) {
+                    throw new RuntimeException('分类承接表不存在，商品新增已回滚');
+                }
+            }
+
+            $pdo->commit();
+
             if ($uploadedImage !== null && $currentImage !== '' && $uploadedImage !== $currentImage) {
                 delete_local_upload($currentImage);
             }
-            flash('success', '商品已更新');
-        } else {
-            $stmt = $pdo->prepare(
-                'INSERT INTO products (category_id, name, price, stock, image, description) VALUES (?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->execute([
-                $form['category_id'],
-                $form['name'],
-                (float)$form['price'],
-                (int)$stock,
-                $image,
-                $form['description'],
-            ]);
-            flash('success', '商品已新增');
+
+            $message = $product ? '商品已更新' : '商品已新增';
+            if ($categoryInfo !== null) {
+                $message .= '；分类「' . $categoryInfo['name'] . '」'
+                    . ($categoryInfo['created'] ? '已创建' : '已关联')
+                    . '，承接表：' . $categoryInfo['table'];
+            }
+            flash('success', $message);
+            redirect('admin/products.php');
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            if ($uploadedImage !== null) {
+                delete_local_upload($uploadedImage);
+                $uploadedImage = null;
+            }
+            $preview = $currentImage;
+            $errors[] = '保存失败：' . $e->getMessage();
         }
-        redirect('admin/products.php');
-    } elseif ($uploadedImage !== null) {
-        // 校验未通过时清理刚上传的文件，并恢复原图预览
+    }
+
+    if ($errors && $uploadedImage !== null) {
+        // 校验或分类处理失败时清理刚上传的文件，并恢复原图预览
         delete_local_upload($uploadedImage);
         $preview = $currentImage;
     }
@@ -155,14 +237,23 @@ require __DIR__ . '/../includes/header.php';
       <input type="text" name="name" value="<?= e($form['name']) ?>" maxlength="120" required />
     </div>
     <div class="form-group">
-      <label>分类</label>
-      <select name="category_id" required>
+      <label>已有分类</label>
+      <select name="category_id">
         <?php foreach ($categories as $cat): ?>
           <option value="<?= (int)$cat['id'] ?>" <?= (int)$form['category_id'] === (int)$cat['id'] ? 'selected' : '' ?>>
             <?= e($cat['name']) ?>
           </option>
         <?php endforeach; ?>
       </select>
+    </div>
+    <div class="form-group">
+      <label for="new_category">新建分类（可选）</label>
+      <input type="text" id="new_category" name="new_category" maxlength="50"
+             value="<?= e($form['new_category']) ?>" placeholder="例如：运动户外" />
+      <div class="form-tip">
+        填写后优先使用新分类；保存时会自动创建分类，并生成
+        <code>products_cat_&lt;分类ID&gt;</code> 承接表。留空则使用上方已有分类。
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div class="form-group">

@@ -88,28 +88,25 @@ require __DIR__ . '/includes/header.php';
 
 <section class="hero">
   <div class="hero-content">
-    <span class="hero-tag">PHP + MySQL 动态商城</span>
-    <h1>好物优选<br>一站购齐</h1>
-    <p>基于 PHP 与 MySQL 构建的购物网站，支持商品浏览、搜索分页、购物车、下单与后台管理。</p>
+    <span class="hero-tag">🌸 春日新品 · PHP + MySQL 动态商城</span>
+    <p class="hero-jp">今天，也遇见好东西。</p>
+    <h1>好物优选<br><em>一站购齐</em></h1>
+    <p>像翻开一本春日画册：精选数码、家电、服饰与美妆，把心动好物轻轻带回家。</p>
     <div class="hero-actions">
       <a href="#products" class="btn btn-light btn-lg">立即选购</a>
       <?php if (!current_user()): ?>
-        <a href="<?= e(url('register.php')) ?>" class="btn btn-outline btn-lg" style="border-color:#fff;color:#fff;">免费注册</a>
+        <a href="<?= e(url('register.php')) ?>" class="btn btn-outline btn-lg">免费注册</a>
       <?php endif; ?>
     </div>
-  </div>
-  <div class="hero-art" aria-hidden="true">
-    <span class="hero-orb orb-1"></span>
-    <span class="hero-orb orb-2"></span>
-    <span class="hero-orb orb-3"></span>
     <div class="hero-float-card">
-      <span class="dot"></span>
+      <span class="hero-avatar"><img src="<?= e(asset('img/mascot-clerk.png')) ?>" alt="" /></span>
       <div>
         <strong>今日推荐</strong>
         <small>精选 12 件好物</small>
       </div>
     </div>
   </div>
+  <div class="hero-art" aria-hidden="true"></div>
 </section>
 
 <div class="feature-strip">
