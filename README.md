@@ -94,7 +94,7 @@
 
 ## 📸 界面预览
 
-> 当前两套前端均已切换为日漫天空樱花主题；下列截图为功能页面示例，最新效果以实际运行为准。
+> 以下截图为当前日漫天空樱花主题的实际运行效果。
 
 | 首页 | 商品列表 |
 | --- | --- |
@@ -111,6 +111,14 @@
 | 结算 | 后台仪表盘 |
 | --- | --- |
 | ![结算](docs/screenshots/checkout.png) | ![后台仪表盘](docs/screenshots/admin.png) |
+
+| 我的订单 | 订单详情 |
+| --- | --- |
+| ![我的订单](docs/screenshots/orders.png) | ![订单详情](docs/screenshots/order-detail.png) |
+
+| 后台商品管理 | 后台订单管理 |
+| --- | --- |
+| ![后台商品管理](docs/screenshots/admin-products.png) | ![后台订单管理](docs/screenshots/admin-orders.png) |
 
 ## 🚀 快速开始
 

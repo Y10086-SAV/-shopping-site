@@ -1,33 +1,31 @@
 # 截图采集说明
 
-项目 README 引用了 `docs/screenshots/` 下的截图。由于图片需在浏览器中实机截取，请按以下步骤在本地补全（每个页面各一张即可）。
+README 中的截图位于 `docs/screenshots/`，统一为 **1366 × 900 PNG**，均为当前日漫天空樱花主题的实际运行效果。
 
-## 启动项目
+## 截图清单
 
-```bash
-cd shopping-site
-npm install
-npm start
-```
-
-浏览器访问 <http://localhost:3000>。
-
-## 待截取的页面清单
-
-| 文件名 | 页面 | 说明 |
+| 文件名 | 页面 | 来源 |
 | --- | --- | --- |
-| `home.png` | 首页 `/` | 顶部横幅 + 最新上架商品网格 |
-| `products.png` | 商品列表 `/products` | 分类标签 + 搜索排序栏 + 商品网格 |
-| `detail.png` | 商品详情 `/products/<id>` | 左侧商品图 + 右侧信息与加购按钮 |
-| `cart.png` | 购物车 `/cart` | 先加几件商品，展示购物车条目与订单摘要 |
-| `checkout.png` | 结算 `/checkout` | 需先登录，展示收货表单与商品清单 |
-| `orders.png` | 我的订单 `/orders` | 提交订单后展示订单列表 |
-| `admin.png` | 后台仪表盘 `/admin` | 用 admin / admin123 登录后访问 |
+| `home.png` | 首页 | PHP 版 `index.php` |
+| `products.png` | 商品列表 | Node.js 版 `/products` |
+| `detail.png` | 商品详情 | PHP 版 `product.php?id=1` |
+| `cart.png` | 购物车 | PHP 版，演示账号 + 购物车数据 |
+| `checkout.png` | 结算 | PHP 版，演示收货信息 |
+| `orders.png` | 我的订单 | PHP 版，演示订单 |
+| `order-detail.png` | 订单详情 | PHP 版，演示订单 |
+| `login.png` | 登录 | PHP 版 `login.php` |
+| `register.png` | 注册 | PHP 版 `register.php` |
+| `admin.png` | 后台仪表盘 | PHP 版 `admin/index.php` |
+| `admin-products.png` | 后台商品管理 | PHP 版 `admin/products.php` |
+| `admin-orders.png` | 后台订单管理 | PHP 版 `admin/orders.php` |
 
-## 建议
+## 重新采集
 
-- 使用浏览器开发者工具（F12）将视口宽度设为 1280px 左右，保证布局一致。
-- 截图保存为 PNG，直接覆盖到 `docs/screenshots/` 目录，保持上述文件名即可。
-- Windows 可用 `Win + Shift + S`，macOS 用 `Cmd + Shift + 4`。
+1. 启动 PHP 版：`php -S 127.0.0.1:8080 -t php`
+2. 启动 Node.js 版：`npm start`（商品列表截图使用）
+3. 浏览器视口设为 **1366 × 900**，隐藏滚动条。
+4. 购物车、结算、订单与后台页面需要登录；建议使用临时演示账号和演示订单，避免暴露真实用户信息。
+5. 后台订单截图中的收货人、手机号、订单号应替换为演示数据。
+6. 截图完成后删除临时账号与订单，保持数据库干净。
 
-> 提示：也可用 Playwright/Puppeteer 等工具自动截图，但手动截取对演示项目已足够。
+> 可用 Playwright / Puppeteer / Edge Headless 等工具批量截图，再覆盖到本目录。
